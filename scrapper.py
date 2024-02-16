@@ -16,7 +16,7 @@ def main(page):
     match_details = []
     def get_league_details(league_list):
         league_title = league_list.find("div", {'class':'title'}).find("h2").text.strip() # educational: or use .contents[] (less efficient)
-        matches = league_list.find("div", {'class':'ul'}).find_all("div", {'class':'item finish liItem'})
+        matches = league_list.find("div", {'class':'ul'}).find_all("div", {'class':'item'})
         
         # looping through matches
         for match in matches:

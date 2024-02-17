@@ -3,6 +3,51 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import datetime
 
+
+# get details
+match_details = []
+def get_league_details(league_list):
+    league_title = league_list.find("div", {'class':'title'}).find("h2").text.strip() # educational: or use .contents[] (less efficient)
+    matches = league_list.find("div", {'class':'ul'}).find_all("div", {'class':'item'})
+    
+    # looping through matches
+    for match in matches:
+        # team names
+        team_1 = match.find("div", {'class':'teams teamA'}).text.strip()
+        team_2 = match.find("div", {'class':'teams teamB'}).text.strip()
+        
+        # result
+        match_scores = match.find('div', {'class':'MResult'}).find_all('span',{'class':'score'})
+        result = f'{match_scores[0].text.strip()} - {match_scores[1].text.strip()}'
+        
+        # match time
+        match_time = match.find('div', {'class':'MResult'}).find('span', {'class':'time'}).text.strip()
+        
+        # match channel
+        match_channel = match.find('div', {'class':'channel icon-channel'})
+        if not match_channel:
+            match_channel = " "
+        else:
+            match_channel = match_channel.text.strip()
+        # match status
+        match_state = match.find('div', {'class':'matchStatus'}).text.strip()
+        
+        # league phase
+        league_phase = match.find('div', {'class':'date'}).text.strip()
+
+        match_details.append(
+            {
+                'League': league_title,
+                'Phase': league_phase,
+                'First team': team_1,
+                'Second team': team_2,
+                'Result': result,
+                'Time': match_time,
+                'State': match_state,
+                'Channel': match_channel
+            }
+        )
+        
 # main program function:
 def main(page):
     
@@ -12,50 +57,6 @@ def main(page):
     
     league_list = soup.find_all("div", {'class':'matchCard'})
 
-    # get details
-    match_details = []
-    def get_league_details(league_list):
-        league_title = league_list.find("div", {'class':'title'}).find("h2").text.strip() # educational: or use .contents[] (less efficient)
-        matches = league_list.find("div", {'class':'ul'}).find_all("div", {'class':'item'})
-        
-        # looping through matches
-        for match in matches:
-            # team names
-            team_1 = match.find("div", {'class':'teams teamA'}).text.strip()
-            team_2 = match.find("div", {'class':'teams teamB'}).text.strip()
-            
-            # result
-            match_scores = match.find('div', {'class':'MResult'}).find_all('span',{'class':'score'})
-            result = f'{match_scores[0].text.strip()} - {match_scores[1].text.strip()}'
-            
-            # match time
-            match_time = match.find('div', {'class':'MResult'}).find('span', {'class':'time'}).text.strip()
-            
-            # match channel
-            match_channel = match.find('div', {'class':'channel icon-channel'})
-            if not match_channel:
-                match_channel = " "
-            else:
-                match_channel = match_channel.text.strip()
-            # match status
-            match_state = match.find('div', {'class':'matchStatus'}).text.strip()
-            
-            # league phase
-            league_phase = match.find('div', {'class':'date'}).text.strip()
-
-            match_details.append(
-                {
-                    'League': league_title,
-                    'Phase': league_phase,
-                    'First team': team_1,
-                    'Second team': team_2,
-                    'Result': result,
-                    'Time': match_time,
-                    'State': match_state,
-                    'Channel': match_channel
-                }
-            )
-        
     for league in league_list:
         get_league_details(league)
     
